@@ -92,7 +92,7 @@ def image_response(trigger, image_flavour, image_samples, image_format):
     friendify = make_friendly(trigger)
     #print(friendify)
     search_list = custom_group(friendify)
-    print(search_list)
+    #print(search_list)
     for search_item in search_list:
         #Stop stupid searches for Wells.
         if len(search_item.split()) == 1:
