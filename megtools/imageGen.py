@@ -38,6 +38,10 @@ def image_show(image_desc, image_flavour, image_samples, image_format):
     os.rmdir("contextimage\\"+image_desc+" "+image_flavour)
     sys.stdout = sys.__stdout__
     
+good_tags = ['JJ','JJR','JJS','NN','NNS','RB','RBS','VBD','VBG','VB','VBP','VBZ','VBN']
+verbs = ['VBD','VBG','VB','VBP','VBZ','VBN']
+nouns = ['NN','NNS']
+adjs = ['JJ','JJR','JJS']
 #Uses some NLP wizardry to get important noun phrases out of a given text to feed image_show
 def get_nouns(context_phrase):
     blob = TextBlob(context_phrase)
@@ -49,8 +53,25 @@ def check_punct(text):
         if operator.contains(text, pun):
             return True
     return False 
+def custom_group(text):
+    blob = TextBlob(text)
+    tagged = blob.tags
+    entries = []
+    for word, pos in tagged:
+        if operator.contains(verbs, pos):
+            new_entry = word
+            v_index = tagged.index((word, pos))
+            if (v_index >= 2) and (v_index <= len(tagged) - 3):
+                for i in range((v_index-2),v_index):
+                    if operator.contains(nouns, tagged[i][1]) or operator.contains(adjs, tagged[i][1]):
+                        new_entry = tagged[i][0] +" "+ new_entry
+                for i in range((v_index+1),v_index+3):
+                    if operator.contains(nouns, tagged[i][1]) or operator.contains(adjs, tagged[i][1]):
+                        new_entry = new_entry + " " + tagged[i][0]
+            if new_entry != word:
+                entries.append(new_entry)
+    return entries
 #List of POS tags that we want to keep
-good_tags = ['JJ','JJR','JJS','NN','NNS','RB','RBS','VBD','VBG','VB','VBP','VBZ','VBN']
 #Concatenates the trigger with its reverse, so as to get TextBlob to detect awkwardly structured noun phrases (terrifying Dragon and Dragon terrifying both detected)
 def extend_context(trigger):
     rev = ""
@@ -70,8 +91,8 @@ def make_friendly(text):
 def image_response(trigger, image_flavour, image_samples, image_format):
     friendify = make_friendly(trigger)
     #print(friendify)
-    search_list = get_nouns(friendify)
-    #print(search_list)
+    search_list = custom_group(friendify)
+    print(search_list)
     for search_item in search_list:
         #Stop stupid searches for Wells.
         if len(search_item.split()) == 1:
