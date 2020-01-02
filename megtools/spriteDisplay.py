@@ -10,10 +10,6 @@ def sprite_show(path, name):
         image_width, image_height = image.size
         scale_factor = 300 / image_height
     except:
-        for image in os.listdir(path):
-            os.remove(path+'/'+image)
-            os.rmdir(path)
-        sys.stdout = sys.__stdout__
         return
     if image_format == 'gif':
         #pyglet does what we want it to do, but it's also the most retarded thing I've ever used.
